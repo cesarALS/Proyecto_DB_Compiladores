@@ -8,18 +8,18 @@ command
     ;
 
 table_management
-    : 'create' ATTRNAME 'with' tbl_attributes   #createTable
-    | 'delete' ATTRNAME                         #deleteTable
+    : 'create table' OBJNAME 'with' tbl_attributes   #createTable
+    | 'delete table' OBJNAME                         #deleteTable
     ;
 
 tbl_attributes
-    : ATTRNAME TYPE (',' ATTRNAME TYPE)*
+    : OBJNAME TYPE (',' OBJNAME TYPE)*
     ;
 
 query
    : '(' query ')'                              #parenExp
    | left=query LOGICAL_OPERATOR right=query    #logicalExp
-   |  ATTRNAME op=( EQ | NE ) value             #compareExp
+   |  OBJNAME op=( EQ | NE ) value              #compareExp
    ;
 
 value
@@ -31,7 +31,6 @@ value
    ;
 
 /* Lexer Rules*/
-
 TYPE
     : 'STRING' | 'INT' | 'BOOLEAN' | 'DOUBLE'
     ;
@@ -40,7 +39,14 @@ LOGICAL_OPERATOR
    : 'and' | 'or'
    ;
 
-ATTRNAME
+EQ : 'eq' ;
+NE : 'ne' ;
+
+BOOLEAN
+   : 'true' | 'false'
+   ;
+
+OBJNAME
    : ALPHA ATTR_NAME_CHAR* ;
 
 fragment ATTR_NAME_CHAR
@@ -55,12 +61,10 @@ fragment ALPHA
    : ( 'A'..'Z' | 'a'..'z' )
    ;
 
-EQ : 'eq' ;
-NE : 'ne' ;
 
-BOOLEAN
-   : 'true' | 'false'
-   ;
+
+
+
 
 STRING
    : '"' (ESC | ~ ["\\])* '"'

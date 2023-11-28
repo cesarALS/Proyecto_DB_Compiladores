@@ -1,7 +1,14 @@
-from antlr4 import *
-from compiler.CommandLexer import CommandLexer
-from compiler.CommandParser import CommandParser
+"""
+Este código implementa la clase MyVisitor, la cual contiene cada una de las funciones que se ejecutan cuando
+se recorre el árbol sintáctico producido por el parser.
+Esas funciones verifican de la validez de la información ingresada por el usuario, y ejecutan los cambios
+correspondientes en la bd.
+"""
+
 from compiler.CommandVisitor import CommandVisitor
+from compiler.CommandParser import CommandParser
+
+import db_management
 
 class MyVisitor(CommandVisitor):
     def __init__(self):
@@ -37,41 +44,17 @@ class MyVisitor(CommandVisitor):
         op = ctx.op.text
 
         operation = {
-             'eq': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r},
-             'in': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r}
+            'eq': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r},
+            'in': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r}
         }
         self.res.update(operation.get(op, lambda: None)())
 
-def process_query(command: str):
-    command = InputStream(command)
+    def visitCreateTable(self, ctx: CommandParser.CreateTableContext):
 
-    # lexer
-    lexer = CommandLexer(command)
-    stream = CommonTokenStream(lexer)
+        table_name = str(ctx.OBJNAME())
 
-    # parser
-    parser = CommandParser(stream)
-    tree = parser.command()
-    visitor = MyVisitor()
-    output = visitor.visit(tree)
-    return visitor.res
-
-def main():
-    print("Bienvenido a la base de datos")
-    print("Introduce un comando: \n")
-
-    while True:
-        input_console = input()
-
-        if input_console == "exit":
-            break
-
-        query_object = process_query(input_console)
-        print(query_object)
-
-
-
-main()
-
-
-
+        if db_management.existent_db(table_name):
+            print(f"Error: Ya existe una tabla con el nombre {table_name}")
+        else:
+            pass
+        return self.visitChildren(ctx)
