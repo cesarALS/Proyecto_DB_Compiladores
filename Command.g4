@@ -5,16 +5,15 @@ grammar Command;
 command
     : table_management
     | query
-    | '(' command ')'
     ;
 
 table_management
-    : 'create table' ATTRNAME 'with' tbl_attributes #createTable
-    | 'delete table' ATTRNAME                   #deleteTable
+    : 'create' ATTRNAME 'with' tbl_attributes   #createTable
+    | 'delete' ATTRNAME                         #deleteTable
     ;
 
 tbl_attributes
-    : ATTRNAME ':' TYPE (',' ATTRNAME ':' TYPE)*
+    : ATTRNAME TYPE (',' ATTRNAME TYPE)*
     ;
 
 query

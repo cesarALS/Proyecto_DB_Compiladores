@@ -46,12 +46,12 @@ def process_query(command: str):
     command = InputStream(command)
 
     # lexer
-    lexer = QueryLexer(command)
+    lexer = CommandLexer(command)
     stream = CommonTokenStream(lexer)
 
     # parser
-    parser = QueryParser(stream)
-    tree = parser.query()
+    parser = CommandParser(stream)
+    tree = parser.command()
     visitor = MyVisitor()
     output = visitor.visit(tree)
     return visitor.res
