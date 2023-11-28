@@ -1,4 +1,4 @@
-grammar Query;
+grammar Command;
 
 /* Parser Rules*/
 
@@ -9,13 +9,12 @@ command
     ;
 
 table_management
-    : 'create table' ATTRNAME 'with' attributes #createTable
-    | 'delete table' ATTRNAME                   #deleteTAble
+    : 'create table' ATTRNAME 'with' tbl_attributes #createTable
+    | 'delete table' ATTRNAME                   #deleteTable
     ;
 
-attributes
-    : ATTRNAME TYPE attributes
-    | ATTRNAME TYPE
+tbl_attributes
+    : ATTRNAME ':' TYPE (',' ATTRNAME ':' TYPE)*
     ;
 
 query
@@ -33,6 +32,7 @@ value
    ;
 
 /* Lexer Rules*/
+
 TYPE
     : 'STRING' | 'INT' | 'BOOLEAN' | 'DOUBLE'
     ;

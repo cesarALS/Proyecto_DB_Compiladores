@@ -1,9 +1,9 @@
 from antlr4 import *
-from compiler.QueryLexer import QueryLexer
-from compiler.QueryParser import QueryParser
-from compiler.QueryVisitor import QueryVisitor
+from compiler.CommandLexer import CommandLexer
+from compiler.CommandParser import CommandParser
+from compiler.CommandVisitor import CommandVisitor
 
-class MyVisitor(QueryVisitor):
+class MyVisitor(CommandVisitor):
     def __init__(self):
         super(MyVisitor, self).__init__()
         self.res = {}
