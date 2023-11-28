@@ -43,11 +43,12 @@ class MyVisitor(QueryVisitor):
         self.res.update(operation.get(op, lambda: None)())
 
 def process_query(command: str):
-    print(command)
     command = InputStream(command)
+
     # lexer
     lexer = QueryLexer(command)
     stream = CommonTokenStream(lexer)
+
     # parser
     parser = QueryParser(stream)
     tree = parser.query()
