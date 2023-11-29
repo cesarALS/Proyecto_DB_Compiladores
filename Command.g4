@@ -21,10 +21,13 @@ tbl_attributes
     ;
 
 query
-   : '(' query ')'                                  #parenExp
-   | left=query LOGICAL_OPERATOR right=query        #logicalExp
-   |  OBJNAME op=( EQ | NE ) value                  #compareExp
+   : 'CONSULTAR' OBJNAME ('DONDE' left=atomic_query)?        #logicalQuery
    ;
+
+atomic_query
+    : '(' atomic_query ')'                                  #parenQuery
+    | OBJNAME COMPARISON_OPERATOR value                     #compareQuery
+    ;
 
 value
    : BOOLEAN           #boolean
@@ -39,19 +42,22 @@ TYPE
     : 'CAD' | 'ENT' | 'BOOL' | 'DEC'
     ;
 
-LOGICAL_OPERATOR
-   : 'y' | 'o'
-   ;
+//LOGICAL_OPERATOR
+//   : 'Y' | 'O'
+//   ;
 
-EQ : 'igual' ;
-NE : 'dif' ;
+COMPARISON_OPERATOR
+    : '=='
+    | '!='
+    ;
+
 
 BOOLEAN
    : 'CIERTO' | 'FALSO'
    ;
 
 NULL
-    : 'NULO' | 'NULL'
+    : 'NULO'
     ;
 
 OBJNAME

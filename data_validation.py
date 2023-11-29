@@ -19,15 +19,7 @@ ERRORS = db_management.ERRORS
 class MyVisitor(CommandVisitor):
     def __init__(self):
         super(MyVisitor, self).__init__()
-        self.res = {}
         self.errors_detected = []
-
-    def visitParenExpr(self, ctx):
-        return self.visit(ctx.query())
-
-    def visitLogicalExp(self, ctx):
-        l = self.visit(ctx.left)
-        r = self.visit(ctx.right)
 
     def visitString(self, ctx):
         st = str(ctx.getText())
@@ -44,18 +36,6 @@ class MyVisitor(CommandVisitor):
 
     def visitNull(self, ctx):
         return [None]
-
-    def visitCompareExp(self, ctx):
-        l = ctx.ATTRNAME()
-        r = self.visit(ctx.value())
-
-        op = ctx.op.text
-
-        operation = {
-            'eq': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r},
-            'in': lambda: {str(l): r[1:-1]} if type(r) == str else {str(l): r}
-        }
-        self.res.update(operation.get(op, lambda: None)())
 
     def visitCreateTable(self, ctx: CommandParser.CreateTableContext):
 
@@ -112,14 +92,16 @@ class MyVisitor(CommandVisitor):
 
         return None
 
+    # Insertar un registro en una tabla de la base de datos
     def visitInsertRegister(self, ctx: CommandParser.InsertRegisterContext):
 
         values = []
         i = 0
         child = ctx.getChild(i)
+
         while child is not None:
             value = self.visit(child)
-            if value is not None:
+            if value is not None:  # Solo los nodos tipo "value" devuelven valores no nulos
                 if value == [None]:
                     values.append(None)
                 else:
@@ -138,6 +120,35 @@ class MyVisitor(CommandVisitor):
                 print("Inserción exitosa")
 
         return values
+
+    def visitLogicalQuery(self, ctx: CommandParser.LogicalQueryContext):
+        tbl_name = str(ctx.OBJNAME())
+        if ctx.getChild(3) is not None:
+            compare_query = self.visit(ctx.getChild(3))
+        else:
+            compare_query = None
+
+        res = db_management.query_table(tbl_name, compare_query)
+        if not res[OPERATION_DONE]:
+            for error in res[ERRORS]:
+                self.errors_detected.append(error)
+
+        return None
+
+    def visitParenQuery(self, ctx: CommandParser.ParenQueryContext):
+        REAL_QUERY_POSITION = 1
+        return self.visitCompareQuery(ctx.getChild(REAL_QUERY_POSITION))
+
+    def visitCompareQuery(self, ctx: CommandParser.CompareQueryContext):
+        field = str(ctx.OBJNAME())
+        op = str(ctx.COMPARISON_OPERATOR())
+        val = self.visit(ctx.value())
+        if val == [None]:
+            val = None
+        return [field, op, val]
+
+
+
 
 
 
