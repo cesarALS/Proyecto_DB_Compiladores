@@ -24,6 +24,9 @@ from sys import stdout
 
 import db_management
 
+from help_module import print_help
+
+
 def process_command(command: str):
     command = InputStream(command)
 
@@ -44,10 +47,7 @@ def process_command(command: str):
         print("Errores: ")
         for error in visitor.errors_detected:
             print("   ", error)
-    else:
-        pass
 
-    return visitor.res
 
 def main():
     print("\nBienvenido a la base de datos")
@@ -59,17 +59,17 @@ def main():
         stdout.flush()
         input_console = stdin.readline().strip()
 
-        if str(input_console) == "q":
+        if input_console == "q":
             print("¡Vuelve pronto!")
             break
+        elif input_console == "ayuda":
+            print_help()
+            continue
 
-        "Se hace todo el proceso de análisis léxico, sintáctico, y de validación de la información"
-        command_object = process_command(input_console)
-        print(command_object)
+        # Se hace el proceso de análisis léxico, sintáctico, y de validación de la información
+        process_command(input_console)
+        print(db_management._table_registry)
 
 
 if __name__ == "__main__":
     main()
-
-
-

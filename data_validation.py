@@ -1,7 +1,7 @@
 """
 Este código implementa la clase MyVisitor, la cual contiene cada una de las funciones que se ejecutan cuando
 se recorre el árbol sintáctico producido por el parser.
-La clase MyVistor hereda de la clase CommandVisitor, que antlr crea automáticamente.
+La clase MyVisitor hereda de la clase CommandVisitor, que antlr crea automáticamente.
 Esas funciones verifican de la validez de la información ingresada por el usuario
 """
 
@@ -54,32 +54,45 @@ class MyVisitor(CommandVisitor):
 
     def visitCreateTable(self, ctx: CommandParser.CreateTableContext):
 
+        ATTRIBUTES_POSITION = 4
         table_name = str(ctx.OBJNAME())
+        ch = self.visitAttrDeclaration(ctx.getChild(ATTRIBUTES_POSITION))
 
         if db_management.existent_db(table_name):
             self.errors_detected.append(f"Ya existe una tabla con el nombre \"{table_name}\"")
+            return None
 
-        return self.visitChildren(ctx)
+        if ch is not None:
+            db_management.insert_table(table_name, ch)  # Inserción en la base de datos
+            return [table_name, ch]
+
+        return None
 
     def visitAttrDeclaration(self, ctx: CommandParser.AttrDeclarationContext):
 
-        attr_names = []
-        duplicated_attrs = []
+        pairs = {}
+        duplicated_attrs = set([])
 
         i = 0
-        attr = ctx.OBJNAME(i)
+        attr, typ = ctx.OBJNAME(i), ctx.TYPE(i)
         while attr is not None:
-            attr = str(attr)
-            if attr in attr_names:
+            attr, typ = str(attr), str(typ)
+
+            if attr in pairs:
                 duplicated_attrs.append(attr)
-            attr_names.append(attr)
+
+            pairs[attr] = typ
+
             i = i+1
-            attr = ctx.OBJNAME(i)
+            attr, typ = ctx.OBJNAME(i), ctx.TYPE(i)
 
-        duplicated_attrs = set(duplicated_attrs)
-        for attr in duplicated_attrs:
-            self.errors_detected.append(f"Campo \"{attr}\" usado más de una vez")
+        if len(duplicated_attrs) > 0:
 
-        return self.visitChildren(ctx)
+            for attr in duplicated_attrs:
+                self.errors_detected.append(f"Campo \"{attr}\" usado más de una vez")
+            return None
+
+        return pairs
+
 
 
