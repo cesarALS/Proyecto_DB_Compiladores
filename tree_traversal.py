@@ -2,8 +2,8 @@
 Este código implementa la clase MyVisitor, la cual contiene cada una de las funciones que se ejecutan cuando
 se recorre el árbol sintáctico producido por el parser.
 La clase MyVisitor hereda de la clase CommandVisitor, que antlr crea automáticamente.
-Esas funciones verifican de la validez de la información ingresada por el usuario, y, de ser válida, llaman
-a las funciones necesarias para manejar la base de datos
+Esas funciones verifican de la validez de la información ingresada por el usuario, y llaman
+las funciones necesarias en db_management para ejecutar los comandos introducidos.
 """
 
 from collections import OrderedDict
@@ -82,7 +82,7 @@ class MyVisitor(CommandVisitor):
         return pairs
 
     def visitDeleteTable(self, ctx: CommandParser.DeleteTableContext):
-        tbl_name = ctx.OBJNAME()
+        tbl_name = str(ctx.OBJNAME())
         res = db_management.delete_table(tbl_name)
         if res[OPERATION_DONE]:
             print("Tabla eliminada")

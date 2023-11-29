@@ -1,3 +1,8 @@
+"""
+Código original del ejercicio. Disponible en:
+https://medium.com/@ab.rhmn97/build-an-api-query-language-with-antlr-in-python-7313dba222e7
+"""
+
 from flask import Flask, jsonify
 from flask_restful import Api, Resource, reqparse
 

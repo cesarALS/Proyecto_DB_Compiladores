@@ -1,10 +1,11 @@
+"""
+Este código maneja la base de datos. Aquí se guardan las tablas de la base de datos, y se proveen las funciones
+necesarias para ejecutar los comandos del usuario.
+"""
+
 from collections import OrderedDict
 from sys import stdout
 
-"""
-Este código maneja la base de datos. Aquí se guardan las tablas de la base de datos, y se proveen las funciones
-necesarias para manejarlas.
-"""
 
 OPERATION_DONE = 0
 ERRORS = 1
@@ -148,7 +149,7 @@ def delete_table(table_name: str):
         del _table_registry[table_name]
         num_tables -= 1
         return [True, None]
-    return [False, f"No se puede eliminar la tabla \"{table_name}\" porque no existe"]
+    return [False, [f"No se puede eliminar la tabla \"{table_name}\" porque no existe"]]
 
 
 def insert_new_register(table_name: str, values: list):
