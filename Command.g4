@@ -1,25 +1,29 @@
+/* Lexer y parser del lenguaje del DBMS */
+
 grammar Command;
 
 /* Parser Rules*/
 
+/* Esta es la producción de entrada */
 command
     : table_management
     | query
     ;
 
 table_management
-    : 'create table' OBJNAME 'with' tbl_attributes   #createTable
-    | 'delete table' OBJNAME                         #deleteTable
+    : 'CREAR TABLA'    OBJNAME 'CON' '{' tbl_attributes '}'  #createTable
+    | 'ELIMINAR TABLA' OBJNAME                               #deleteTable
+    | 'INSERTAR EN'    OBJNAME '{' value (',' value)* '}'    #insertRegister
     ;
 
 tbl_attributes
-    : OBJNAME TYPE (',' OBJNAME TYPE)*
+    : OBJNAME TYPE (',' OBJNAME TYPE)*              #attrDeclaration
     ;
 
 query
-   : '(' query ')'                              #parenExp
-   | left=query LOGICAL_OPERATOR right=query    #logicalExp
-   |  OBJNAME op=( EQ | NE ) value              #compareExp
+   : '(' query ')'                                  #parenExp
+   | left=query LOGICAL_OPERATOR right=query        #logicalExp
+   |  OBJNAME op=( EQ | NE ) value                  #compareExp
    ;
 
 value
@@ -32,18 +36,18 @@ value
 
 /* Lexer Rules*/
 TYPE
-    : 'STRING' | 'INT' | 'BOOLEAN' | 'DOUBLE'
+    : 'CAD' | 'ENT' | 'BOOL' | 'DEC'
     ;
 
 LOGICAL_OPERATOR
-   : 'and' | 'or'
+   : 'y' | 'o'
    ;
 
-EQ : 'eq' ;
-NE : 'ne' ;
+EQ : 'igual' ;
+NE : 'dif' ;
 
 BOOLEAN
-   : 'true' | 'false'
+   : 'cierto' | 'falso'
    ;
 
 OBJNAME
@@ -60,11 +64,6 @@ fragment DIGIT
 fragment ALPHA
    : ( 'A'..'Z' | 'a'..'z' )
    ;
-
-
-
-
-
 
 STRING
    : '"' (ESC | ~ ["\\])* '"'
@@ -90,3 +89,7 @@ EXP
    : [Ee] [+\-]? INT
    ;
 WS : [ \t]+ -> skip ;
+
+NULL
+    : 'NULL'
+    ;
