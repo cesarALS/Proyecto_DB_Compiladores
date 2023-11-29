@@ -5,7 +5,7 @@ La clase MyVisitor hereda de la clase CommandVisitor, que antlr crea automática
 Esas funciones verifican de la validez de la información ingresada por el usuario
 """
 
-from collections import Counter
+from collections import OrderedDict
 
 from compiler.CommandVisitor import CommandVisitor
 from compiler.CommandParser import CommandParser
@@ -56,21 +56,21 @@ class MyVisitor(CommandVisitor):
 
         ATTRIBUTES_POSITION = 4
         table_name = str(ctx.OBJNAME())
-        ch = self.visitAttrDeclaration(ctx.getChild(ATTRIBUTES_POSITION))
-
-        if db_management.existent_db(table_name):
-            self.errors_detected.append(f"Ya existe una tabla con el nombre \"{table_name}\"")
-            return None
+        ch = self.visitAttrDeclaration(ctx.getChild(ATTRIBUTES_POSITION)) # Explorar los hijos
 
         if ch is not None:
-            db_management.insert_table(table_name, ch)  # Inserción en la base de datos
-            return [table_name, ch]
+            res = db_management.insert_table(table_name, ch)  # Inserción en la base de datos
+            if res[0] is False:
+                for error in res[1]: self.errors_detected.append(error)
 
         return None
 
     def visitAttrDeclaration(self, ctx: CommandParser.AttrDeclarationContext):
 
-        pairs = {}
+        # Se va a comprobar si hay o no campos duplicados. En caso de no haberlos, se crea un diccionario
+        # que se introduce luego en la base de datos
+
+        pairs = OrderedDict()
         duplicated_attrs = set([])
 
         i = 0
@@ -93,6 +93,16 @@ class MyVisitor(CommandVisitor):
             return None
 
         return pairs
+
+    def visitDeleteTable(self, ctx: CommandParser.DeleteTableContext):
+        tbl_name = ctx.OBJNAME()
+        res = db_management.delete_table(tbl_name)
+        if res[0]:
+            print(res[1])
+        else:
+            self.errors_detected.append(res[1])
+
+        return self.visitChildren(ctx)
 
 
 

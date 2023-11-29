@@ -38,8 +38,15 @@ def process_command(command: str):
     parser = CommandParser(stream)
     tree = parser.command()
 
+
+    # Recorrer el árbol para validar la información y, en caso de ser válida dicha información,
+    # ejecutar los comandos correspondientes
     visitor = MyVisitor()
-    visitor.visit(tree)
+    try:
+        visitor.visit(tree)
+    except AttributeError:
+        print("Expresión no válida")
+        return
 
     if len(visitor.errors_detected) == 1:
         print("Error:", visitor.errors_detected[0])
@@ -68,7 +75,9 @@ def main():
 
         # Se hace el proceso de análisis léxico, sintáctico, y de validación de la información
         process_command(input_console)
-        print(db_management._table_registry)
+        # for name in db_management._table_registry:
+        #    print(name)
+        #    db_management._table_registry[name].query_table()
 
 
 if __name__ == "__main__":
