@@ -57,6 +57,9 @@ def process_command(command: str):
 
 
 def main():
+
+    db_management.init_db()
+
     print("\nBienvenido a la base de datos")
     print("Introduce el comando \"ayuda\" para más información sobre los comandos")
     print("Presiona \"q\" para salir\n")
@@ -75,9 +78,9 @@ def main():
 
         # Se hace el proceso de análisis léxico, sintáctico, y de validación de la información
         process_command(input_console)
-        # for name in db_management._table_registry:
-        #    print(name)
-        #    db_management._table_registry[name].query_table()
+        for name in db_management._table_registry:
+            print(name)
+            db_management._table_registry[name].query_table()
 
 
 if __name__ == "__main__":

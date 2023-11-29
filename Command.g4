@@ -47,8 +47,12 @@ EQ : 'igual' ;
 NE : 'dif' ;
 
 BOOLEAN
-   : 'cierto' | 'falso'
+   : 'CIERTO' | 'FALSO'
    ;
+
+NULL
+    : 'NULO' | 'NULL'
+    ;
 
 OBJNAME
    : ALPHA ATTR_NAME_CHAR* ;
@@ -67,6 +71,7 @@ fragment ALPHA
 
 STRING
    : '"' (ESC | ~ ["\\])* '"'
+   | '\'' (ESC | ~ ["\\])* '\''
    ;
 fragment ESC
    : '\\' (["\\/bfnrt] | UNICODE)
@@ -90,6 +95,3 @@ EXP
    ;
 WS : [ \t]+ -> skip ;
 
-NULL
-    : 'NULL'
-    ;

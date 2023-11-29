@@ -2,7 +2,8 @@
 Este código implementa la clase MyVisitor, la cual contiene cada una de las funciones que se ejecutan cuando
 se recorre el árbol sintáctico producido por el parser.
 La clase MyVisitor hereda de la clase CommandVisitor, que antlr crea automáticamente.
-Esas funciones verifican de la validez de la información ingresada por el usuario
+Esas funciones verifican de la validez de la información ingresada por el usuario, y, de ser válida, llaman
+a las funciones necesarias para manejar la base de datos
 """
 
 from collections import OrderedDict
@@ -11,6 +12,9 @@ from compiler.CommandVisitor import CommandVisitor
 from compiler.CommandParser import CommandParser
 
 import db_management
+
+OPERATION_DONE = db_management.OPERATION_DONE
+ERRORS = db_management.ERRORS
 
 class MyVisitor(CommandVisitor):
     def __init__(self):
@@ -26,7 +30,8 @@ class MyVisitor(CommandVisitor):
         r = self.visit(ctx.right)
 
     def visitString(self, ctx):
-        return str(ctx.getText())
+        st = str(ctx.getText())
+        return st[1:-1]
 
     def visitDouble(self, ctx):
         return float(ctx.getText())
@@ -35,10 +40,10 @@ class MyVisitor(CommandVisitor):
         return int(ctx.getText())
 
     def visitBoolean(self, ctx):
-        return bool(self, ctx.getText())
+        return bool(ctx.getText())
 
     def visitNull(self, ctx):
-        return None
+        return [None]
 
     def visitCompareExp(self, ctx):
         l = ctx.ATTRNAME()
@@ -60,8 +65,10 @@ class MyVisitor(CommandVisitor):
 
         if ch is not None:
             res = db_management.insert_table(table_name, ch)  # Inserción en la base de datos
-            if res[0] is False:
-                for error in res[1]: self.errors_detected.append(error)
+            if not res[OPERATION_DONE]:
+                for error in res[ERRORS]: self.errors_detected.append(error)
+            else:
+                print(f"Tabla {table_name} creada")
 
         return None
 
@@ -97,12 +104,40 @@ class MyVisitor(CommandVisitor):
     def visitDeleteTable(self, ctx: CommandParser.DeleteTableContext):
         tbl_name = ctx.OBJNAME()
         res = db_management.delete_table(tbl_name)
-        if res[0]:
-            print(res[1])
+        if res[OPERATION_DONE]:
+            print("Tabla eliminada")
         else:
-            self.errors_detected.append(res[1])
+            for error in res[ERRORS]:
+                self.errors_detected.append(error)
 
-        return self.visitChildren(ctx)
+        return None
+
+    def visitInsertRegister(self, ctx: CommandParser.InsertRegisterContext):
+
+        values = []
+        i = 0
+        child = ctx.getChild(i)
+        while child is not None:
+            value = self.visit(child)
+            if value is not None:
+                if value == [None]:
+                    values.append(None)
+                else:
+                    values.append(value)
+            i += 1
+            child = ctx.getChild(i)
+
+        tbl_name = str(ctx.OBJNAME())
+
+        if not len(self.errors_detected) > 0:
+            res = db_management.insert_new_register(tbl_name, values)
+            if not res[OPERATION_DONE]:
+                for error in res[ERRORS]:
+                    self.errors_detected.append(error)
+            else:
+                print("Inserción exitosa")
+
+        return values
 
 
 
