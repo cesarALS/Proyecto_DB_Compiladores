@@ -102,7 +102,7 @@ class DBTable:
                     if value[0] == field:
                         field_position = key
 
-                self._print_fields()
+                self._print_line(self.fields)
 
                 for register in self.registers:
                     data_to_evaluate = register[field_position]

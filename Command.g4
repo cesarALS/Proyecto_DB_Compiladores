@@ -42,10 +42,6 @@ TYPE
     : 'CAD' | 'ENT' | 'BOOL' | 'DEC'
     ;
 
-//LOGICAL_OPERATOR
-//   : 'Y' | 'O'
-//   ;
-
 COMPARISON_OPERATOR
     : '=='
     | '!='

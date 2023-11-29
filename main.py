@@ -17,7 +17,7 @@ Se usa antlr para implementar el lexer y el parser.
 from antlr4 import *
 from compiler.CommandLexer import CommandLexer
 from compiler.CommandParser import CommandParser
-from data_validation import MyVisitor
+from tree_traversal import MyVisitor
 
 from sys import stdin
 from sys import stdout
